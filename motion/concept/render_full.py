@@ -180,10 +180,15 @@ for f in (ONLY or range(N)):
         k = prog(f, *sg['wipe'], IN_OUT)
         if f >= sg['wipe'][1] - 1 and k >= .999: m = np.ones((H, W), np.float32); out = B
         else:
-            src = new_mask(f - LAG, sg['n'], zb) > .5
-            dist = cv2.distanceTransform((~src).astype(np.uint8), cv2.DIST_L2, 5) if src.any() else (W//2 - xx)
             warp = 26*np.sin(xx/130 + f*.08) + 18*np.sin(yy/90 - f*.06 + 1.7)          # fabric edge, half-res px
-            field = dist + warp; soft = .07*W/2
+            if zb == 'summary':
+                # craning up into the sky: the navy comes down from the top like dusk (a darker scene soaking out
+                # of the road reads as stains)
+                field = yy + 2*warp; soft = .12*W/2
+            else:
+                src = new_mask(f - LAG, sg['n'], zb) > .5
+                dist = cv2.distanceTransform((~src).astype(np.uint8), cv2.DIST_L2, 5) if src.any() else (W//2 - xx)
+                field = dist + warp; soft = .07*W/2
             R = float(np.quantile(field[::3, ::3], k))
             mh = 1 - np.clip((field - R + soft)/(2*soft), 0, 1); mh = mh*mh*(3 - 2*mh)
             m = cv2.resize(mh, (W, H), interpolation=cv2.INTER_LINEAR)
