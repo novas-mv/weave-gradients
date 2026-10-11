@@ -1,0 +1,146 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Weave Gradients</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Aurora-style gradient weaves with fabric-like folds. Browser studio and Figma plugin, print resolution.">
+<meta property="og:image" content="https://novas-mv.github.io/weave-gradients/card.jpg">
+<style>
+  :root{
+    --bg:#0B1020; --panel:#121a2e; --line:#223049;
+    --ink:#e9edf4; --dim:#93a1b8; --accent:#14e0d8; --accent2:#e8479b;
+    --r:12px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+       -webkit-font-smoothing:antialiased}
+  .wrap{max-width:52rem;margin:0 auto;padding:clamp(1.5rem,5vw,4rem) 1.25rem 5rem}
+  h1{font-size:clamp(2rem,6vw,2.8rem);line-height:1.1;margin:0 0 .5rem;letter-spacing:-.02em}
+  h2{font-size:1.25rem;margin:2.75rem 0 .75rem;letter-spacing:-.01em}
+  h3{font-size:1rem;margin:1.5rem 0 .4rem}
+  p{color:var(--dim);margin:.5rem 0 1rem}
+  .lede{font-size:1.15rem;color:#bfcada;max-width:34rem}
+  a{color:var(--accent)}
+  code{background:#1a2440;border:1px solid var(--line);border-radius:5px;
+       padding:.1em .4em;font:13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:#ffd9a0}
+
+  .hero{margin:1.75rem 0 .5rem;border:1px solid var(--line);border-radius:var(--r);
+        background:var(--panel);overflow:hidden}
+  .hero img{display:block;width:100%;height:auto}
+
+  .cta{display:flex;flex-wrap:wrap;gap:.6rem;margin:1.5rem 0 0}
+  .btn{display:inline-block;padding:.8rem 1.15rem;border-radius:9px;text-decoration:none;
+       font-weight:600;font-size:.95rem;border:1px solid transparent}
+  .btn.primary{background:var(--accent);color:#06201f}
+  .btn.ghost{border-color:var(--line);color:var(--ink)}
+  .btn:hover{filter:brightness(1.08)}
+
+  .cards{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));margin:1rem 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:1.15rem}
+  .card h3{margin-top:0}
+  .card p{margin-bottom:0;font-size:.93rem}
+
+  ol.steps{counter-reset:s;list-style:none;padding:0;margin:.5rem 0}
+  ol.steps li{counter-increment:s;position:relative;padding:.55rem 0 .55rem 2.6rem;color:var(--dim)}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:.5rem;
+    width:1.7rem;height:1.7rem;border-radius:50%;background:#1a2440;border:1px solid var(--line);
+    color:var(--ink);font-size:.82rem;font-weight:700;display:grid;place-items:center}
+  ol.steps strong{color:var(--ink);font-weight:600}
+
+  .note{border-left:3px solid var(--accent2);background:#1616280d;padding:.1rem 0 .1rem 1rem;margin:1.25rem 0}
+  .note p{margin:.5rem 0}
+
+  table{width:100%;border-collapse:collapse;margin:.5rem 0 1rem;font-size:.94rem}
+  th,td{text-align:left;padding:.55rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--ink);font-weight:600;width:11rem}
+  td{color:var(--dim)}
+
+  footer{margin-top:3.5rem;padding-top:1.5rem;border-top:1px solid var(--line);
+         color:#6e7d95;font-size:.88rem}
+  @media (max-width:520px){ th{width:auto;display:block;border:0;padding-bottom:0}
+                            td{display:block;padding-top:.15rem} }
+</style>
+
+<div class="wrap">
+
+  <h1>Weave Gradients</h1>
+  <p class="lede">Aurora-style gradient weaves: soft colour blooms and fabric-like folds.
+     Make them in your browser, or right inside Figma, at print resolution.</p>
+
+  <div class="hero"><img src="hero.jpg" alt="Four weave gradients: Aura Blast, Aurora, Midnight and Lime" width="1600" height="560"></div>
+
+  <div class="cta">
+    <a class="btn primary" href="studio/">Open the studio</a>
+    <a class="btn ghost" href="#figma">Get the Figma plugin</a>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>The studio</h3>
+      <p>A web page. Nothing to install. Pick a preset, tune it, download a PNG
+         up to print size.</p>
+    </div>
+    <div class="card">
+      <h3>The Figma plugin</h3>
+      <p>The same panel inside Figma. Insert weaves as editable layers you can
+         reopen and update later.</p>
+    </div>
+  </div>
+
+  <h2>Using the studio</h2>
+  <ol class="steps">
+    <li>Open <a href="studio/">the studio</a> and click a <strong>preset</strong>.</li>
+    <li><strong>Gradient</strong>: click the bar to add a colour stop, drag to move it, Backspace to remove.</li>
+    <li><strong>Generative weave</strong> makes random folds — press <strong>Shuffle</strong> for a new one.
+        <strong>Compose layers</strong> lets you place each ribbon and colour bloom yourself; drag the dots on the preview.</li>
+    <li>Pick a size and resolution under <strong>Output</strong>, then <strong>Download image</strong>.</li>
+  </ol>
+
+  <h3>The controls that matter most</h3>
+  <table>
+    <tr><th>Edge sharpness</th><td>Soft aurora at low values, crisp silk folds at high values</td></tr>
+    <tr><th>Glow · Aura</th><td>How much the light colours spread and bloom</td></tr>
+    <tr><th>Weave rotation</th><td>Turns the folds. <strong>Gradient angle</strong> turns the colours underneath, separately</td></tr>
+    <tr><th>Fold shadow · Roll</th><td>On a ribbon layer: the shadow tucked under the fold, and how rounded the fold looks</td></tr>
+  </table>
+
+  <h2 id="figma">Installing the Figma plugin</h2>
+  <ol class="steps">
+    <li><a href="https://github.com/novas-mv/weave-gradients/archive/refs/heads/main.zip">Download the plugin</a> and unzip it.</li>
+    <li><strong>Move the folder somewhere permanent</strong> — Documents, not Downloads.
+        Figma reads these files every time, so if the folder moves the plugin stops working.</li>
+    <li>In Figma: <strong>Plugins → Development → Import plugin from manifest…</strong></li>
+    <li>Choose <code>plugin/manifest.json</code> inside that folder.</li>
+  </ol>
+  <p>It now lives under <strong>Plugins → Development → Weave Gradients</strong>. You only do this once.</p>
+
+  <h3>Using it</h3>
+  <ol class="steps">
+    <li>Run the plugin and make a weave the same way as in the studio.</li>
+    <li>Choose a size — or select a frame first and pick <strong>Selection</strong> to fill it.</li>
+    <li>Pick <strong>Editable</strong> or <strong>Flattened</strong>, then <strong>Insert in Figma</strong>.</li>
+  </ol>
+
+  <h3>Editable vs flattened</h3>
+  <table>
+    <tr><th>Editable</th><td>The layer remembers its settings. Select it (or click <strong>Edit weave</strong> in Figma's right panel), change anything, press <strong>Update layer</strong></td></tr>
+    <tr><th>Flattened</th><td>A plain image with no link back to the plugin</td></tr>
+    <tr><th>Insert new</th><td>Stops editing the selected layer so you can make a fresh one</td></tr>
+  </table>
+
+  <h2>Printing big</h2>
+  <p>Use <strong>Download</strong> rather than inserting into Figma. Pick the paper size and
+     <strong>300 dpi</strong> for A4–A1, <strong>150 dpi</strong> for A0 and larger — smooth
+     gradients print cleanly at 150. The PNG carries its DPI, so it opens at the right physical size.
+     One file tops out around 240 megapixels.</p>
+  <p>Inside Figma, anything over 4096 px is split into seamless tiles, because that's Figma's image limit.</p>
+
+  <div class="note">
+    <p><strong>Stuck?</strong> Send a screenshot — most problems are recognisable on sight.</p>
+  </div>
+
+  <footer>
+    <a href="https://github.com/novas-mv/weave-gradients">Source on GitHub</a> ·
+    <a href="https://novas-mv.github.io/brand-hub/">All brand resources</a>
+  </footer>
+</div>

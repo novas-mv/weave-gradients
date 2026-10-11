@@ -1,0 +1,793 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+:root{
+  --bg:var(--figma-color-bg,#fff);--bg2:var(--figma-color-bg-secondary,#f5f5f5);
+  --fg:var(--figma-color-text,#1e1e1e);--fg2:var(--figma-color-text-secondary,#777);
+  --bd:var(--figma-color-border,#e6e6e6);--accent:var(--figma-color-bg-brand,#0d99ff);
+  --onaccent:var(--figma-color-text-onbrand,#fff);--warn:var(--figma-color-text-warning,#b86200);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:11px/1.4 Inter,system-ui,-apple-system,sans-serif}
+body{display:flex;flex-direction:column}
+main{flex:1;overflow:auto;padding:12px 12px 4px}
+.preview{background:var(--bg2);border-radius:8px;height:250px;display:flex;align-items:center;justify-content:center;padding:10px}
+#pv{border-radius:2px;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+h3{font-size:11px;font-weight:600;margin:16px 0 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+h3 small{font-weight:400;color:var(--fg2)}
+.presets{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.presets canvas{width:100%;aspect-ratio:.7;border-radius:4px;cursor:pointer;outline:2px solid transparent;outline-offset:1px;display:block}
+.presets canvas.on{outline-color:var(--accent)}
+.row{display:grid;grid-template-columns:86px 1fr 36px;align-items:center;gap:8px;height:24px}
+.row output{text-align:right;color:var(--fg2);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent);margin:0}
+/* gradient editor */
+.gbar{position:relative;height:26px;border-radius:5px;border:1px solid var(--bd);cursor:copy;margin-bottom:14px}
+.stop{position:absolute;top:100%;width:14px;height:14px;margin-left:-7px;margin-top:2px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35);cursor:ew-resize}
+.stop.sel{box-shadow:0 0 0 2px var(--accent)}
+.stopedit{display:grid;grid-template-columns:36px 1fr 60px auto;gap:6px;align-items:center}
+.glows{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.glows label{display:grid;grid-template-columns:36px 1fr;gap:6px;align-items:center;color:var(--fg2)}
+input[type=color]{width:36px;height:26px;border:1px solid var(--bd);border-radius:4px;padding:1px;background:var(--bg);cursor:pointer}
+select,input[type=number],input[type=text]{height:26px;border:1px solid var(--bd);border-radius:4px;background:var(--bg);color:var(--fg);padding:0 6px;font:inherit;width:100%;min-width:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sizes{display:grid;grid-template-columns:1fr 1fr 26px;gap:6px;margin-top:6px}
+.lbl{color:var(--fg2);margin:8px 0 4px}
+button{height:26px;padding:0 10px;border-radius:5px;border:1px solid var(--bd);background:var(--bg);color:var(--fg);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap}
+button.primary{background:var(--accent);border-color:transparent;color:var(--onaccent);font-weight:600;height:32px}
+button.big{height:32px;font-weight:600}
+button:disabled{opacity:.45;cursor:default}
+.seed{display:flex;gap:6px;align-items:center}.seed input{width:72px}
+footer{border-top:1px solid var(--bd);padding:10px 12px 12px;display:grid;gap:8px}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.meta{color:var(--fg2);display:flex;justify-content:space-between;gap:8px}
+.meta .warn{color:var(--warn)}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--bg2);border-radius:6px;padding:2px;gap:2px;margin-bottom:8px}
+.seg button{border:0;background:none;height:24px}.seg button.on{background:var(--bg);box-shadow:0 0 0 1px var(--bd)}
+.pvwrap{position:relative}
+.handle{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.5),0 1px 3px rgba(0,0,0,.4);cursor:move;touch-action:none}
+.handle.sel{width:18px;height:18px;margin:-9px 0 0 -9px;box-shadow:0 0 0 2px var(--accent),0 1px 3px rgba(0,0,0,.4)}
+.layers{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.chip{display:flex;align-items:center;gap:5px;height:24px;padding:0 8px;border:1px solid var(--bd);border-radius:12px;cursor:pointer;background:var(--bg)}
+.chip.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.chip i{width:10px;height:10px;border-radius:50%;display:block}
+.ledit-top{display:grid;grid-template-columns:36px 1fr auto auto;gap:6px;align-items:center;margin-bottom:6px}
+.hidden{display:none!important}
+/* ---- web studio: same panel, opened outside Figma ---- */
+.web body{display:grid;grid-template-columns:1fr 380px;grid-template-rows:1fr auto;height:100vh;overflow:hidden}
+.web .preview{grid-column:1;grid-row:1/3;height:100vh;border-radius:0;padding:32px;position:relative;background:#0b1020}
+.web main{grid-column:2;grid-row:1;border-left:1px solid var(--bd)}
+.web footer{grid-column:2;grid-row:2;border-left:1px solid var(--bd)}
+.web .btns{grid-template-columns:1fr}
+.web #download{background:var(--accent);border-color:transparent;color:var(--onaccent)}
+.webhome{position:absolute;top:14px;left:16px;color:#c9d3e6;font:600 13px/1 Inter,system-ui,sans-serif;text-decoration:none;opacity:.85}
+.webhome:hover{opacity:1}
+@media (max-width:760px){
+  .web body{display:block;height:auto;overflow:auto}
+  .web .preview{height:55vh;padding:16px;position:sticky;top:0;z-index:2}
+  .web main,.web footer{border-left:0}
+}
+.editbar{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--figma-color-bg-brand-tertiary,#e5f4ff);border-radius:6px;padding:4px 4px 4px 8px}
+.editbar b{font-weight:600}
+.editbar button{height:22px}
+.bar{height:3px;background:var(--bg2);border-radius:2px;overflow:hidden;display:none}.bar.on{display:block}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .15s}
+</style>
+</head>
+<body>
+<main>
+  <div class="preview"><div class="pvwrap" id="pvwrap"><canvas id="pv" style="display:block"></canvas><div id="handles"></div></div></div>
+
+  <h3>Presets <small>click to load</small></h3>
+  <div class="presets" id="presets"></div>
+
+  <h3>Gradient <small>click bar to add · drag stops · ⌫ removes</small></h3>
+  <div class="gbar" id="gbar"></div>
+  <div class="stopedit">
+    <input type="color" id="stopColor">
+    <input type="text" id="stopHex" spellcheck="false">
+    <input type="number" id="stopPos" min="0" max="100" step="1" title="Position %">
+    <button id="stopDel" title="Remove stop">Remove</button>
+  </div>
+  <div class="glows">
+    <label><input type="color" id="glowA"> Glow A</label>
+    <label><input type="color" id="glowB"> Glow B</label>
+  </div>
+
+  <h3>Weave
+    <span class="seed">Seed <input type="number" id="seed" min="0" max="99999"> <button id="shuffle" title="New random seed">Shuffle</button></span>
+  </h3>
+  <div class="seg" id="modeSeg"><button data-m="weave">Generative weave</button><button data-m="compose">Compose layers</button></div>
+  <div id="composeUI">
+    <div class="layers" id="layerList"></div>
+    <div class="grid2" style="margin-bottom:8px"><button id="addRibbon">+ Ribbon</button><button id="addBlast">+ Blast</button></div>
+    <div id="layerEdit"></div>
+    <div class="lbl" style="margin-top:12px">Global</div>
+  </div>
+  <div id="sliders"></div>
+
+  <h3>Output</h3>
+  <select id="sizePreset"></select>
+  <div class="sizes">
+    <input type="number" id="w" min="1" title="Width">
+    <input type="number" id="h" min="1" title="Height">
+    <button id="swap" title="Swap orientation" style="padding:0">⇄</button>
+  </div>
+  <div class="lbl">Resolution &amp; format</div>
+  <div class="grid2">
+    <select id="density">
+      <option value="1">1× (concept)</option>
+      <option value="2" selected>2×</option>
+      <option value="3">3×</option>
+      <option value="4">4×</option>
+      <option value="4.1667">300 dpi print (pt sizes)</option>
+      <option value="2.0833">150 dpi large print</option>
+    </select>
+    <select id="format">
+      <option value="image/png">PNG (lossless)</option>
+      <option value="image/jpeg">JPEG 95% (small)</option>
+    </select>
+  </div>
+  <div class="lbl">Insert as</div>
+  <div class="seg" id="insSeg"><button data-v="editable" title="Keeps its settings — select it later to edit and update">Editable</button><button data-v="flat" title="Plain image, no link to the plugin">Flattened</button></div>
+</main>
+<footer>
+  <div class="editbar hidden" id="editBar"><span>Editing <b id="editName"></b></span><button id="detach" title="Stop editing this layer — insert a new weave instead">Insert new</button></div>
+  <div class="meta"><span id="pxInfo"></span><span id="tileInfo"></span></div>
+  <div class="bar" id="bar"><i></i></div>
+  <div class="btns">
+    <button class="big" id="download">Download</button>
+    <button class="primary" id="insert">Insert in Figma</button>
+  </div>
+</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+const send = m => parent.postMessage({ pluginMessage: m }, '*');
+
+/* ---------------- presets (palettes sampled from the references) ---------------- */
+const PRESETS = [
+  { name:'Aura Blast', mode:'compose', stops:[['#30138e',0],['#2a1585',.05],['#0c1f78',1]], glowA:'#14f5ee', glowB:'#ff8a48', seed:7, count:4, flow:0, depth:.4, sharp:.3, glow:.86, shadow:.3, scale:1, rotate:0, angle:297, aura:.55, grain:.06,
+    layers:[
+      { type:'blast',  c:'#7a4be0', x:.766, y:.063, angle:-32, width:.298, stretch:4,    amt:1.186 },
+      { type:'blast',  c:'#2a0a7c', x:.067, y:.235, angle:55,  width:.6,   stretch:.824, amt:1.5 },
+      { type:'blast',  c:'#d4187a', x:.33,  y:.7,   angle:-40, width:.26,  stretch:1.317,amt:1.2 },
+      { type:'ribbon', c:'#ff8a48', x:.04,  y:.67,  angle:-41, bend:.3,  width:.1,  edge:.7,  amt:.85,  halo:2.23, len:.453, flip:false, fold:.6, sheen:.1, roll:.45 },
+      { type:'blast',  c:'#0b9fb0', x:.818, y:.634, angle:151, width:.393, stretch:.417, amt:1 },
+      { type:'ribbon', c:'#14f5ee', x:.86,  y:.42,  angle:-100,bend:-.2, width:.05,  edge:.65, amt:1.0,  halo:3,    len:.8,   flip:false, fold:.8, sheen:.2, roll:.45 },
+      { type:'blast',  c:'#f0c83a', x:.833, y:.003, angle:65,  width:.278, stretch:1.363,amt:.77 },
+      { type:'blast',  c:'#6ee08a', x:.999, y:.2,   angle:-33, width:.403, stretch:.807, amt:.45 },
+    ] },
+  { name:'Aurora',   stops:[['#1d0c6f',0],['#5a2bd1',.3],['#c51f7c',.58],['#ff8c47',.85],['#ffd04a',1]], glowA:'#14f3e6', glowB:'#3ad9ff', seed:7,   count:4, flow:.55, depth:.4,  sharp:.3, glow:.85, shadow:.45, scale:1,   rotate:20,  angle:250, aura:.55, grain:.1 },
+  { name:'Coral',    stops:[['#16247e',0],['#5a2f8a',.25],['#c8306e',.5],['#e6655f',.75],['#f68a4d',1]],  glowA:'#2ee3c6', glowB:'#ffb04a', seed:42,  count:4, flow:.5,  depth:.35, sharp:.3, glow:.7,  shadow:.35, scale:1.1, rotate:15,  angle:80,  aura:.55, grain:.1 },
+  { name:'Violet',   stops:[['#2a0b7c',0],['#5d1fb8',.35],['#8f30e2',.7],['#a33fe8',1]],                  glowA:'#ffa860', glowB:'#4be0b0', seed:19,  count:3, flow:.45, depth:.3,  sharp:.3,  glow:.75, shadow:.3,  scale:1.2, rotate:300, angle:270, aura:.55, grain:.1 },
+  { name:'Lime',     stops:[['#13288a',0],['#245a6a',.35],['#3fb46a',.7],['#6bdc5c',1]],                  glowA:'#2af2c8', glowB:'#e3d443', seed:27,  count:4, flow:.5,  depth:.5,  sharp:.3,  glow:1.0, shadow:.4,  scale:1,   rotate:110, angle:60,  aura:.55, grain:.1 },
+  { name:'Sky',      stops:[['#0a2378',0],['#1d4fd2',.4],['#0f97e6',.75],['#18b0f0',1]],                  glowA:'#72f0ff', glowB:'#e09a86', seed:11,  count:4, flow:.5,  depth:.4,  sharp:.3, glow:1.0,  shadow:.25, scale:1.1, rotate:10,  angle:100, aura:.55, grain:.1 },
+  { name:'Midnight', stops:[['#0a0d46',0],['#13228e',.45],['#2c1d80',.75],['#7a2a9c',1]],                  glowA:'#12c9d9', glowB:'#d33194', seed:63,  count:5, flow:.6,  depth:.35, sharp:.3, glow:.85, shadow:.5,  scale:1,   rotate:200, angle:120, aura:.55, grain:.1 },
+];
+
+const SLIDERS = [
+  ['rotate','Weave rotation',0,360,1,'°'],
+  ['angle','Gradient angle',0,360,1,'°'],
+  ['count','Folds',1,8,1,''],
+  ['flow','Flow / curl',0,1,.01,''],
+  ['depth','Fold depth',0,1,.01,''],
+  ['sharp','Edge sharpness',0,1,.01,''],
+  ['glow','Glow',0,1.5,.01,''],
+  ['aura','Aura / bloom',0,1,.01,''],
+  ['shadow','Shadow',0,1,.01,''],
+  ['scale','Scale',.4,2.5,.01,''],
+  ['grain','Grain',0,1,.01,''],
+];
+
+const SIZES = [
+  ['a4','A4 · 595×842',595,842],['a3','A3 · 842×1191',842,1191],['a2','A2 · 1191×1684',1191,1684],
+  ['a1','A1 · 1684×2384',1684,2384],['a0','A0 · 2384×3370',2384,3370],['poster','Poster 18×24in · 1296×1728',1296,1728],
+  ['ig','Instagram 4:5 · 1080×1350',1080,1350],['story','Story 9:16 · 1080×1920',1080,1920],
+  ['hd','Landscape 16:9 · 1920×1080',1920,1080],['desk','Desktop · 1440×900',1440,900],['custom','Custom',null,null],
+];
+
+const clone = o => JSON.parse(JSON.stringify(o));
+let P = presetToParams(PRESETS[0]);
+let OUT = { size:'a4', w:595, h:842, density:'2', format:'image/png' };
+let sel = null;          // current Figma selection {id,name,w,h}
+let selStop = 0;
+
+function presetToParams(p){ const q = clone(p); q.stops = q.stops.map(([c,pos])=>({c,pos})); q.preset = p.name; return q; }
+
+/* ---------------- color math ---------------- */
+function hex2rgb(h){ h=h.replace('#',''); if(h.length===3) h=h.split('').map(c=>c+c).join(''); const n=parseInt(h,16); return [(n>>16&255)/255,(n>>8&255)/255,(n&255)/255]; }
+const toLin = c => c<=0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055,2.4);
+const lin = h => hex2rgb(h).map(toLin);
+function oklab(h){
+  const [r,g,b] = lin(h);
+  const l=Math.cbrt(0.4122214708*r+0.5363325363*g+0.0514459929*b);
+  const m=Math.cbrt(0.2119034982*r+0.6806995451*g+0.1073969566*b);
+  const s=Math.cbrt(0.0883024619*r+0.2817188376*g+0.6299787005*b);
+  return [0.2104542553*l+0.7936177850*m-0.0040720468*s, 1.9779984951*l-2.4285922050*m+0.4505937099*s, 0.0259040371*l+0.7827717662*m-0.8086757660*s];
+}
+const validHex = s => /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.test(s.trim());
+const normHex = s => { s=s.trim().replace('#',''); if(s.length===3) s=s.split('').map(c=>c+c).join(''); return '#'+s.toLowerCase(); };
+
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+
+/* ---------------- WebGL ---------------- */
+const FS = `
+precision highp float;
+uniform vec2 uFrame, uRectO, uRectS, uCanvas, uSeedOff;
+uniform float uAura, uDensity, uCount, uFlow, uDepth, uSharp, uGlow, uShadow, uScale, uRotate, uAngle, uGrain, uNStops;
+uniform vec3 uStop[6];
+uniform float uPos[6];
+uniform vec3 uGlowA, uGlowB;
+uniform vec4 uH[8];
+uniform float uMode, uNL;
+uniform vec4 uLA[8], uLB[8], uLD[8], uLE[8];
+uniform vec3 uLC[8];
+
+vec3 permute(vec3 x){ return mod(((x*34.0)+1.0)*x, 289.0); }
+float snoise(vec2 v){
+  const vec4 C = vec4(0.211324865405187,0.366025403784439,-0.577350269189626,0.024390243902439);
+  vec2 i = floor(v + dot(v, C.yy)); vec2 x0 = v - i + dot(i, C.xx);
+  vec2 i1 = (x0.x > x0.y) ? vec2(1.0,0.0) : vec2(0.0,1.0);
+  vec4 x12 = x0.xyxy + C.xxzz; x12.xy -= i1;
+  i = mod(i, 289.0);
+  vec3 p = permute(permute(i.y + vec3(0.0,i1.y,1.0)) + i.x + vec3(0.0,i1.x,1.0));
+  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+  m = m*m; m = m*m;
+  vec3 x = 2.0*fract(p*C.www) - 1.0; vec3 h = abs(x) - 0.5; vec3 ox = floor(x + 0.5); vec3 a0 = x - ox;
+  m *= 1.79284291400159 - 0.85373472095314*(a0*a0 + h*h);
+  vec3 g; g.x = a0.x*x0.x + h.x*x0.y; g.yz = a0.yz*x12.xz + h.yz*x12.yw;
+  return 130.0*dot(m, g);
+}
+float hash12(vec2 p){ vec3 p3 = fract(vec3(p.xyx)*.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y)*p3.z); }
+mat2 rot(float a){ float c = cos(a), s = sin(a); return mat2(c,-s,s,c); }
+
+vec3 oklab2lin(vec3 c){
+  float l_ = c.x + 0.3963377774*c.y + 0.2158037573*c.z;
+  float m_ = c.x - 0.1055613458*c.y - 0.0638541728*c.z;
+  float s_ = c.x - 0.0894841775*c.y - 1.2914855480*c.z;
+  float l = l_*l_*l_, m = m_*m_*m_, s = s_*s_*s_;
+  return vec3( 4.0767416621*l - 3.3077115913*m + 0.2309699292*s,
+              -1.2684380046*l + 2.6097574011*m - 0.3413193965*s,
+              -0.0041960863*l - 0.7034186147*m + 1.7076147010*s);
+}
+vec3 lin2srgb(vec3 c){ c = clamp(c, 0.0, 1.0); return mix(c*12.92, 1.055*pow(c, vec3(1.0/2.4)) - 0.055, step(0.0031308, c)); }
+
+vec3 mixLab(vec3 a, vec3 b, float k){
+  vec3 m = mix(a, b, k);
+  float cm = length(m.yz);
+  m.yz *= min(mix(length(a.yz), length(b.yz), k)/max(cm, 1e-4), 2.0);   // keep chroma: no grey midpoints
+  return m;
+}
+vec3 ramp(float t){
+  vec3 c = uStop[0];
+  for (int i = 1; i < 6; i++){
+    if (float(i) >= uNStops) break;
+    c = mixLab(c, uStop[i], smoothstep(uPos[i-1], uPos[i] + 1e-4, t));
+  }
+  return c;
+}
+
+void fold(int i, vec4 h, vec2 w, vec2 s, float e, out float x, out float side, out float along, out float width){
+  vec2 r = rot((h.x - 0.5)*1.4)*w;
+  float freq = mix(0.7, 2.0, h.y);
+  float curve = (h.z - 0.5)*1.1 + mix(0.12, 0.42, h.w)*sin(r.y*freq + h.x*6.283) + (h.y - 0.5)*0.7*r.y*r.y;
+  x = r.x - curve;
+  side = smoothstep(-e, e, x);
+  along = clamp(0.55 + 0.6*snoise(vec2(r.y*0.8, float(i)*4.7) + s), 0.0, 1.0);
+  width = mix(0.02, 0.12, h.z);
+}
+
+void main(){
+  vec2 frag = vec2(gl_FragCoord.x, uCanvas.y - gl_FragCoord.y);
+  vec2 unit = uRectO + frag/uCanvas*uRectS;          // frame units, top-left origin
+  vec2 p = (unit - 0.5*uFrame)/min(uFrame.x, uFrame.y);
+  p.y = -p.y;
+  vec2 s = uSeedOff;
+
+  // gradient field (own angle, independent of weave rotation)
+  vec2 pg = p/uScale;
+  vec2 wg = pg + uFlow*0.35*vec2(snoise(pg*0.7 + s), snoise(pg*0.7 + s + 17.3));
+  vec2 dir = vec2(cos(uAngle), sin(uAngle));
+  float t = 0.5 + 0.6*dot(wg, dir) + 0.22*snoise(wg*0.8 + s*1.3);
+
+  vec3 lab;
+  if (uMode > 0.5) {
+  // ---------- compose: explicit ribbons + blasts ----------
+  float mn = min(uFrame.x, uFrame.y);
+  lab = ramp(t);
+  for (int i = 0; i < 8; i++){
+    if (float(i) >= uNL) break;
+    vec4 A = uLA[i], B = uLB[i], D = uLD[i]; float fi = float(i);
+    vec2 P = (A.xy - 0.5)*uFrame/mn; P.y = -P.y;
+    vec2 d = p - P;
+    d += uFlow*0.1*vec2(snoise(p*1.1 + s + fi*3.3), snoise(p*1.1 + s + fi*3.3 + 7.7));
+    float a = A.z + uRotate, ca = cos(a), sa = sin(a);
+    vec2 v = vec2(ca*d.x + sa*d.y, -sa*d.x + ca*d.y);   // v.x along, v.y across (left = +)
+    if (B.w < 0.5) {
+      // fabric fold: shadow under the fold, crisp-but-smooth edge, sheen line, light rolling off the lit side
+      vec4 E = uLE[i];
+      float x = (v.y - A.w*v.x*v.x)*D.w;
+      float e = mix(0.10, 0.003, B.y);
+      float side = smoothstep(-e, e, x);
+      float fade = D.y > 0.0 ? 1.0 - smoothstep(D.y*0.5, D.y, abs(v.x)) : 1.0;
+      float vary = 0.75 + 0.25*snoise(vec2(v.x*1.6, fi*5.1) + s);   // light varies along the fold
+      float xl = max(x, 0.0);
+      // roll: the lit surface curves over the edge — light builds up just past the silhouette, then rolls off
+      float roll = E.z;
+      float rise = 1.0 - exp(-xl/max(B.x*0.45*roll, 1e-4));
+      float core = side*rise*exp(-pow(xl/(B.x*(1.0 + roll)), 0.85))*(1.0 + roll*0.5);
+      float hw = B.x*D.x;
+      float halo = exp(-x*x/(2.0*hw*hw))*mix(1.0, side, B.y*0.9);
+      float k = 1.0 - exp(-(core + halo*0.45)*fade*vary*B.z*uGlow*2.0);
+      // shadow tucked under the fold (unlit side, darkest right at the edge)
+      float occl = (1.0 - side)*exp(-max(-x, 0.0)/(B.x*(1.2 + 2.5*roll)))*fade
+                 + side*(1.0 - rise)*0.6*fade;                 // seam stays in shadow until the surface turns to the light
+      lab.x *= 1.0 - E.x*0.5*occl;
+      lab.yz *= 1.0 - E.x*0.15*occl;
+      float baseL = lab.x;
+      lab = mixLab(lab, uLC[i], k*0.95);
+      lab.x = mix(baseL, lab.x, mix(0.5, 1.0, k*k));
+      // sheen: thin bright line right on the edge
+      float sw = e*2.0 + 0.006;
+      float sheen = side*exp(-(xl*xl)/(sw*sw))*fade*vary*E.y;
+      lab = mixLab(lab, vec3(min(uLC[i].x + 0.12, 1.0), uLC[i].yz*0.75), clamp(sheen*0.8, 0.0, 1.0));
+    } else {
+      vec2 r2 = v/vec2(B.x*max(D.z, 0.05), B.x);
+      lab = mixLab(lab, uLC[i], clamp(exp(-dot(r2, r2))*B.z*uGlow, 0.0, 1.0));
+    }
+  }
+  } else {
+  // weave space (rotated)
+  vec2 q = rot(uRotate)*p/uScale;
+  vec2 w = q + uFlow*0.45*vec2(snoise(q*0.7 + s + 3.1), snoise(q*0.7 + s + 41.7));
+  w += uFlow*0.12*vec2(snoise(w*1.6 + s + 5.0), snoise(w*1.6 + s + 9.0));
+
+  float e = mix(0.14, 0.002, uSharp);
+  float shade = 0.0;
+  // pass 1: folds shift the colour field + cast soft shadows
+  for (int i = 0; i < 8; i++){
+    if (float(i) >= uCount) break;
+    vec4 h = uH[i]; float x, side, along, width;
+    fold(i, h, w, s, e, x, side, along, width);
+    float sgn = h.w > 0.5 ? 1.0 : -1.0;
+    t += sgn*mix(0.15, 0.35, h.z)*uDepth*side*along;
+    shade += (1.0 - side)*exp(-max(-x, 0.0)/(width*3.0))*along*uSharp;
+  }
+  lab = ramp(t);
+  lab.x *= 1.0 - clamp(shade*uShadow*0.5, 0.0, 0.8);
+
+  // aura blasts: big soft blooms of glow colour
+  for (int i = 0; i < 3; i++){
+    vec4 h = uH[7 - i];
+    vec2 c = (h.xy - 0.5)*vec2(1.2, 1.5);
+    float rr = mix(0.25, 0.6, h.z);
+    vec2 d = w - c;
+    float b = exp(-dot(d, d)/(rr*rr))*uAura*mix(0.25, 0.6, h.w);
+    float baseL = lab.x;
+    lab = mixLab(lab, mix(uGlowA, uGlowB, step(0.5, h.w)), clamp(b*uGlow, 0.0, 0.8));
+    lab.x = mix(baseL, lab.x, 0.5);
+  }
+  // pass 2: luminous ribbons, applied one by one so hues never average to grey
+  float lift = 0.0;
+  for (int i = 0; i < 8; i++){
+    if (float(i) >= uCount) break;
+    vec4 h = uH[i]; float x, side, along, width;
+    fold(i, h, w, s, e, x, side, along, width);
+    float core = side*exp(-max(x, 0.0)/width);
+    float hw = width*mix(1.5, 6.0, uAura);
+    float halo = exp(-x*x/(2.0*hw*hw));
+    float L = (core*mix(0.4, 1.0, uSharp) + halo*mix(0.15, 0.5, uAura))*along*mix(0.55, 1.0, h.x);
+    float k = 1.0 - exp(-L*uGlow*2.0);
+    float baseL = lab.x;
+    lab = mixLab(lab, mix(uGlowA, uGlowB, step(0.5, fract(h.y*7.0))), k*0.92);
+    lab.x = mix(baseL, lab.x, mix(0.45, 1.0, k*k));            // glow tints first, brightens only at its core
+    lift += k*k;
+  }
+  lab.x += min(lift, 1.0)*0.06*uGlow;
+  }
+  vec3 col = max(oklab2lin(lab), 0.0);
+  col = lin2srgb(col);
+  float g = hash12(floor(unit*uDensity)) - 0.5;
+  col += g*(1.5/255.0 + uGrain*0.09);                // dither + grain (pixel-locked)
+  gl_FragColor = vec4(col, 1.0);
+}`;
+const VS = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
+
+const glc = document.createElement('canvas');
+const gl = glc.getContext('webgl', { alpha:false, antialias:false, preserveDrawingBuffer:true });
+function sh(type, src){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s); if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+const prog = gl.createProgram();
+gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+gl.linkProgram(prog); gl.useProgram(prog);
+gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,3,-1,-1,3]), gl.STATIC_DRAW);
+gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+const U = {}; ['uMode','uNL','uLA[0]','uLB[0]','uLC[0]','uLD[0]','uLE[0]','uAura','uFrame','uRectO','uRectS','uCanvas','uSeedOff','uDensity','uCount','uFlow','uDepth','uSharp','uGlow','uShadow','uScale','uRotate','uAngle','uGrain','uNStops','uStop[0]','uPos[0]','uGlowA','uGlowB','uH[0]']
+  .forEach(n => U[n] = gl.getUniformLocation(prog, n));
+
+const MAXT = (() => {
+  let m = Math.min(4096, gl.getParameter(gl.MAX_RENDERBUFFER_SIZE), gl.getParameter(gl.MAX_VIEWPORT_DIMS)[0]);
+  glc.width = glc.height = m;
+  if (gl.drawingBufferWidth < m) m = Math.min(gl.drawingBufferWidth, gl.drawingBufferHeight);
+  return m;
+})();
+
+function setParams(p){
+  const stops = p.stops.slice().sort((a,b)=>a.pos-b.pos);
+  const sv = new Float32Array(18), pv = new Float32Array(6);
+  stops.forEach((s,i)=>{ sv.set(oklab(s.c), i*3); pv[i]=s.pos; });
+  gl.uniform3fv(U['uStop[0]'], sv); gl.uniform1fv(U['uPos[0]'], pv); gl.uniform1f(U.uNStops, stops.length);
+  gl.uniform3fv(U.uGlowA, oklab(p.glowA)); gl.uniform3fv(U.uGlowB, oklab(p.glowB)); gl.uniform1f(U.uAura, p.aura==null?.6:p.aura);
+  const rnd = mulberry32(p.seed*9973 + 1), hv = new Float32Array(32);
+  for (let i=0;i<32;i++) hv[i] = rnd();
+  gl.uniform4fv(U['uH[0]'], hv); gl.uniform2f(U.uSeedOff, rnd()*100, rnd()*100);
+  gl.uniform1f(U.uCount,p.count); gl.uniform1f(U.uFlow,p.flow); gl.uniform1f(U.uDepth,p.depth); gl.uniform1f(U.uSharp,p.sharp);
+  gl.uniform1f(U.uGlow,p.glow); gl.uniform1f(U.uShadow,p.shadow); gl.uniform1f(U.uScale,p.scale); gl.uniform1f(U.uGrain,p.grain);
+  gl.uniform1f(U.uRotate, p.rotate*Math.PI/180); gl.uniform1f(U.uAngle, p.angle*Math.PI/180);
+  const L = p.mode==='compose' ? (p.layers||[]).slice(0,8) : [];
+  gl.uniform1f(U.uMode, p.mode==='compose'?1:0); gl.uniform1f(U.uNL, L.length);
+  const la=new Float32Array(32), lb=new Float32Array(32), lc=new Float32Array(24), ld=new Float32Array(32), le=new Float32Array(32), R=Math.PI/180;
+  L.forEach((l,i)=>{
+    la.set([l.x,l.y,l.angle*R,l.bend||0],i*4);
+    lb.set([l.width,l.edge??.5,l.amt,l.type==='blast'?1:0],i*4);
+    lc.set(oklab(l.c),i*3);
+    ld.set([l.halo??3,l.len||0,l.stretch??1,l.flip?-1:1],i*4);
+    le.set([l.fold??.5,l.sheen??.5,l.roll??0,0],i*4);
+  });
+  gl.uniform4fv(U['uLA[0]'],la); gl.uniform4fv(U['uLB[0]'],lb); gl.uniform3fv(U['uLC[0]'],lc); gl.uniform4fv(U['uLD[0]'],ld); gl.uniform4fv(U['uLE[0]'],le);
+}
+// Render the frame region [ox,oy,rw,rh] (frame units) of a W×H frame into a pw×ph pixel canvas.
+function render(W,H, ox,oy, rw,rh, pw,ph, density){
+  if (glc.width!==pw || glc.height!==ph){ glc.width=pw; glc.height=ph; }
+  gl.viewport(0,0,pw,ph);
+  gl.uniform2f(U.uFrame,W,H); gl.uniform2f(U.uRectO,ox,oy); gl.uniform2f(U.uRectS,rw,rh);
+  gl.uniform2f(U.uCanvas,pw,ph); gl.uniform1f(U.uDensity,density);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+}
+
+/* ---------------- preview ---------------- */
+const pv = $('#pv');
+let raf = 0;
+function schedule(save=true){ if(!raf) raf = requestAnimationFrame(()=>{ raf=0; drawPreview(); updateInfo(); }); if(save) saveSoon(); }
+function drawPreview(){
+  const box = pv.closest('.preview'), bw = box.clientWidth-20, bh = box.clientHeight-20;
+  const k = Math.min(bw/OUT.w, bh/OUT.h), cw = Math.max(1,Math.round(OUT.w*k)), ch = Math.max(1,Math.round(OUT.h*k));
+  const dpr = devicePixelRatio || 1, pw = Math.round(cw*dpr), ph = Math.round(ch*dpr);
+  pv.style.width = cw+'px'; pv.style.height = ch+'px'; pv.width = pw; pv.height = ph;
+  setParams(P); render(OUT.w,OUT.h, 0,0, OUT.w,OUT.h, pw,ph, pw/OUT.w);
+  pv.getContext('2d').drawImage(glc,0,0);
+  if (!dragging()) drawHandles();
+}
+function drawPresets(){
+  const wrap = $('#presets'); wrap.innerHTML='';
+  PRESETS.forEach(pr=>{
+    const c = document.createElement('canvas'), dpr=devicePixelRatio||1;
+    c.width = Math.round(46*dpr); c.height = Math.round(66*dpr); c.title = pr.name;
+    setParams(presetToParams(pr)); render(70,100, 0,0, 70,100, c.width,c.height, c.width/70);
+    c.getContext('2d').drawImage(glc,0,0);
+    c.onclick = ()=>{ P = presetToParams(pr); selStop=0; selLayer=0; syncAll(); };
+    if (pr.name===P.preset) c.classList.add('on');
+    wrap.appendChild(c);
+  });
+}
+
+/* ---------------- gradient editor ---------------- */
+const gbar = $('#gbar');
+function drawGradient(){
+  const stops = P.stops.slice().sort((a,b)=>a.pos-b.pos);
+  gbar.style.background = `linear-gradient(90deg, ${stops.map(s=>`${s.c} ${s.pos*100}%`).join(',')})`;
+  gbar.querySelectorAll('.stop').forEach(n=>n.remove());
+  P.stops.forEach((s,i)=>{
+    const d = document.createElement('div');
+    d.className = 'stop'+(i===selStop?' sel':''); d.style.left = s.pos*100+'%'; d.style.background = s.c;
+    d.onpointerdown = ev => {
+      ev.stopPropagation(); selStop=i; syncStop(); drawGradient();
+      const r = gbar.getBoundingClientRect();
+      const move = e => { s.pos = Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)); d.style.left=s.pos*100+'%'; $('#stopPos').value=Math.round(s.pos*100); drawGradientBg(); markCustom(); schedule(); };
+      const up = () => { removeEventListener('pointermove',move); removeEventListener('pointerup',up); drawGradient(); };
+      addEventListener('pointermove',move); addEventListener('pointerup',up);
+    };
+    gbar.appendChild(d);
+  });
+}
+function drawGradientBg(){ const stops=P.stops.slice().sort((a,b)=>a.pos-b.pos); gbar.style.background=`linear-gradient(90deg, ${stops.map(s=>`${s.c} ${s.pos*100}%`).join(',')})`; }
+gbar.onpointerdown = ev => {
+  if (P.stops.length>=6) return send({type:'notify',text:'Max 6 gradient stops'});
+  const r = gbar.getBoundingClientRect(), pos = Math.min(1,Math.max(0,(ev.clientX-r.left)/r.width));
+  // sample current gradient colour at click position
+  const c = document.createElement('canvas'); c.width=100; c.height=1; const x=c.getContext('2d');
+  const g = x.createLinearGradient(0,0,100,0);
+  P.stops.slice().sort((a,b)=>a.pos-b.pos).forEach(s=>g.addColorStop(s.pos,s.c));
+  x.fillStyle = g;
+  x.fillRect(0,0,100,1); const d=x.getImageData(Math.min(99,Math.round(pos*100)),0,1,1).data;
+  P.stops.push({ c:'#'+[d[0],d[1],d[2]].map(v=>v.toString(16).padStart(2,'0')).join(''), pos });
+  selStop = P.stops.length-1; markCustom(); syncStop(); drawGradient(); schedule();
+};
+function syncStop(){ const s=P.stops[selStop]; $('#stopColor').value=s.c; $('#stopHex').value=s.c; $('#stopPos').value=Math.round(s.pos*100); $('#stopDel').disabled = P.stops.length<=2; }
+function removeStop(){ if(P.stops.length<=2) return; P.stops.splice(selStop,1); selStop=Math.max(0,selStop-1); markCustom(); syncStop(); drawGradient(); schedule(); }
+$('#stopColor').oninput = e => { P.stops[selStop].c = e.target.value; $('#stopHex').value=e.target.value; markCustom(); drawGradient(); schedule(); };
+$('#stopHex').onchange = e => { if(!validHex(e.target.value)) return syncStop(); P.stops[selStop].c = normHex(e.target.value); markCustom(); syncStop(); drawGradient(); schedule(); };
+$('#stopPos').onchange = e => { P.stops[selStop].pos = Math.min(100,Math.max(0,+e.target.value||0))/100; markCustom(); drawGradient(); schedule(); };
+$('#stopDel').onclick = removeStop;
+addEventListener('keydown', e => { if((e.key==='Backspace'||e.key==='Delete') && !/INPUT|SELECT/.test(document.activeElement.tagName)) removeStop(); });
+$('#glowA').oninput = e => { P.glowA=e.target.value; markCustom(); schedule(); };
+$('#glowB').oninput = e => { P.glowB=e.target.value; markCustom(); schedule(); };
+
+/* ---------------- sliders & seed ---------------- */
+const sl = $('#sliders');
+SLIDERS.forEach(([k,label,min,max,step,unit])=>{
+  const row = document.createElement('div'); row.className='row';
+  row.innerHTML = `<label for="s_${k}">${label}</label><input type="range" id="s_${k}" min="${min}" max="${max}" step="${step}"><output id="o_${k}"></output>`;
+  sl.appendChild(row);
+  const inp = row.querySelector('input'), out = row.querySelector('output');
+  inp.oninput = () => { P[k] = +inp.value; out.textContent = fmt(P[k],step)+unit; markCustom(); schedule(); };
+  inp.ondblclick = () => { const pr = PRESETS.find(x=>x.name===P.preset) || PRESETS[0]; P[k]=pr[k]; syncSliders(); schedule(); };
+});
+const fmt = (v,step) => step>=1 ? String(Math.round(v)) : v.toFixed(2);
+function syncSliders(){ SLIDERS.forEach(([k,,, ,step,unit])=>{ $('#s_'+k).value=P[k]; $('#o_'+k).textContent=fmt(P[k],step)+unit; }); $('#seed').value=P.seed; }
+$('#seed').onchange = e => { P.seed = Math.max(0,Math.floor(+e.target.value||0)); markCustom(); schedule(); };
+$('#shuffle').onclick = () => { P.seed = Math.floor(Math.random()*99999); $('#seed').value=P.seed; markCustom(); schedule(); };
+
+function markCustom(){ document.querySelectorAll('#presets canvas').forEach(c=>c.classList.remove('on')); }
+
+/* ---------------- output ---------------- */
+function buildSizeOptions(){
+  const s = $('#sizePreset'), cur = OUT.size;
+  s.innerHTML = (sel ? `<option value="sel">Selection · ${sel.name.slice(0,22)} (${sel.w}×${sel.h})</option>` : '') +
+    SIZES.map(([id,l])=>`<option value="${id}">${l}</option>`).join('');
+  s.value = (cur==='sel' && !sel) ? 'custom' : cur;
+  if (cur==='sel' && !sel) OUT.size='custom';
+}
+$('#sizePreset').onchange = e => { OUT.size = e.target.value; applySize(); };
+function applySize(){
+  if (OUT.size==='sel' && sel){ OUT.w=sel.w; OUT.h=sel.h; }
+  else { const z = SIZES.find(x=>x[0]===OUT.size); if (z && z[2]){ OUT.w=z[2]; OUT.h=z[3]; } }
+  $('#w').value=OUT.w; $('#h').value=OUT.h; schedule();
+}
+const toCustom = () => { OUT.size='custom'; $('#sizePreset').value='custom'; };
+$('#w').onchange = e => { OUT.w = Math.max(1,+e.target.value||1); toCustom(); schedule(); };
+$('#h').onchange = e => { OUT.h = Math.max(1,+e.target.value||1); toCustom(); schedule(); };
+$('#swap').onclick = () => { [OUT.w,OUT.h]=[OUT.h,OUT.w]; $('#w').value=OUT.w; $('#h').value=OUT.h; toCustom(); schedule(); };
+$('#density').onchange = e => { OUT.density=e.target.value; schedule(); };
+$('#format').onchange = e => { OUT.format=e.target.value; schedule(); };
+
+function figmaTiles(){
+  const d = +OUT.density, W = OUT.w, H = OUT.h;
+  const T = Math.max(1, Math.floor(MAXT/d) - 1), tiles = [];
+  for (let uy=0; uy<H; uy+=T) for (let ux=0; ux<W; ux+=T){
+    const uw=Math.min(T,W-ux), uh=Math.min(T,H-uy);
+    const rw = uw + (ux+uw<W ? 1 : 0), rh = uh + (uy+uh<H ? 1 : 0);   // 1-unit overlap hides seams
+    tiles.push({ x:ux, y:uy, w:rw, h:rh, pw:Math.min(MAXT,Math.max(1,Math.round(rw*d))), ph:Math.min(MAXT,Math.max(1,Math.round(rh*d))) });
+  }
+  return tiles;
+}
+function updateInfo(){
+  const d=+OUT.density, pw=Math.round(OUT.w*d), ph=Math.round(OUT.h*d), mp=pw*ph/1e6;
+  const big = mp > 240;
+  $('#pxInfo').innerHTML = `${pw.toLocaleString()} × ${ph.toLocaleString()} px · <span class="${big?'warn':''}">${mp.toFixed(1)} MP</span>`;
+  const n = figmaTiles().length;
+  $('#tileInfo').textContent = n>1 ? `Figma: ${n} tiles` : '';
+  $('#download').disabled = big; $('#download').title = big ? 'Too large for one image (max ~240 MP). Use 150 dpi — gradients print smooth at that.' : '';
+}
+
+/* ---------------- export ---------------- */
+const bar = $('#bar');
+function busy(on, frac=0){ bar.classList.toggle('on',on); bar.firstElementChild.style.width=(frac*100)+'%'; $('#insert').disabled=on; $('#download').disabled=on; if(!on) updateInfo(); }
+const tick = () => new Promise(r=>setTimeout(r,0));
+const toBlob = (c,type) => new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('Encoding failed — try a smaller size')), type, 0.95));
+let ackResolve = null;
+let ackErr = null;
+const waitAck = () => new Promise(r=>ackResolve=r).then(()=>{ if(ackErr){ const e=ackErr; ackErr=null; throw new Error(e); } });
+
+$('#insert').onclick = async () => {
+  working = true;
+  try {
+    const tiles = figmaTiles(), d=+OUT.density;
+    busy(true);
+    const selId = OUT.size==='sel' && sel ? sel.id : null;
+    const label = `${Math.round(OUT.w*d)}×${Math.round(OUT.h*d)} px` + (tiles.length>1 ? ` in ${tiles.length} tiles` : '');
+    const store = (editing || OUT.insert!=='flat') ? JSON.stringify({ P, OUT:{ density:OUT.density, format:OUT.format } }) : null;
+    send({ type:'begin', W:OUT.w, H:OUT.h, count:tiles.length, selId, updateId: editing ? editing.id : null, store,
+           name:`Weave · ${P.preset||'Custom'} · ${P.seed}`, label });
+    await waitAck();
+    setParams(P);
+    for (let i=0;i<tiles.length;i++){
+      const t = tiles[i];
+      render(OUT.w,OUT.h, t.x,t.y, t.w,t.h, t.pw,t.ph, t.pw/t.w);
+      const bytes = new Uint8Array(await (await toBlob(glc, OUT.format)).arrayBuffer());
+      send({ type:'tile', i, count:tiles.length, x:t.x, y:t.y, w:t.w, h:t.h, bytes });
+      await waitAck(); busy(true,(i+1)/tiles.length);
+    }
+    send({ type:'end' });
+  } catch(e){ send({type:'notify', text:String(e.message||e), error:true}); }
+  working = false; busy(false); schedule(false);
+};
+
+$('#download').onclick = async () => {
+  try {
+    const d=+OUT.density, PW=Math.round(OUT.w*d), PH=Math.round(OUT.h*d);
+    busy(true);
+    const out = document.createElement('canvas'); out.width=PW; out.height=PH;
+    const ctx = out.getContext('2d');
+    if (!ctx || out.width!==PW) throw new Error('Browser could not allocate this size');
+    setParams(P);
+    const n = Math.ceil(PW/MAXT)*Math.ceil(PH/MAXT); let k=0;
+    for (let py=0; py<PH; py+=MAXT) for (let px=0; px<PW; px+=MAXT){
+      const tw=Math.min(MAXT,PW-px), th=Math.min(MAXT,PH-py);
+      render(OUT.w,OUT.h, px/d,py/d, tw/d,th/d, tw,th, d);
+      ctx.drawImage(glc,px,py); busy(true, ++k/n*0.6); await tick();
+    }
+    let blob = await toBlob(out, OUT.format);
+    if (OUT.format==='image/png') blob = await setPngDpi(blob, Math.round(72*d));
+    busy(true,1);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `weave-${(P.preset||'custom').toLowerCase()}-${P.seed}-${PW}x${PH}.${OUT.format==='image/png'?'png':'jpg'}`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 60000);
+  } catch(e){ send({type:'notify', text:String(e.message||e), error:true}); }
+  busy(false); schedule(false);
+};
+
+// Write a pHYs chunk so print apps open the PNG at the right physical size.
+const CRC = (()=>{ const t=new Uint32Array(256); for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;} return t; })();
+function crc32(b){ let c=0xFFFFFFFF; for(let i=0;i<b.length;i++) c=CRC[(c^b[i])&255]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+async function setPngDpi(blob, dpi){
+  const src = new Uint8Array(await blob.arrayBuffer()), ppm = Math.round(dpi/0.0254);
+  const chunk = new Uint8Array(21), dv = new DataView(chunk.buffer);
+  dv.setUint32(0,9); chunk.set([0x70,0x48,0x59,0x73],4); dv.setUint32(8,ppm); dv.setUint32(12,ppm); chunk[16]=1;
+  dv.setUint32(17, crc32(chunk.subarray(4,17)));
+  const at = 33; // after signature (8) + IHDR (25)
+  return new Blob([src.subarray(0,at), chunk, src.subarray(at)], { type:'image/png' });
+}
+
+/* ---------------- compose mode ---------------- */
+const dragging = () => !!document.querySelector('.handle:active');
+const WEAVE_ONLY = ['count','depth','sharp','shadow','aura'];
+const LAYER_FIELDS = {
+  ribbon: [['x','X',0,1,.005],['y','Y',0,1,.005],['angle','Angle',-180,180,1],['bend','Bend',-3,3,.01],['width','Glow width',.01,.4,.005],['edge','Edge',0,1,.01],['amt','Intensity',0,2.5,.01],['halo','Halo',1,10,.1],['fold','Fold shadow',0,1.5,.01],['roll','Roll / depth',0,1,.01],['sheen','Sheen',0,1.5,.01],['len','Length (0 = ∞)',0,2,.01]],
+  blast:  [['x','X',0,1,.005],['y','Y',0,1,.005],['angle','Angle',-180,180,1],['width','Radius',.03,1,.005],['stretch','Stretch',.2,4,.01],['amt','Intensity',0,1.5,.01]],
+};
+let selLayer = 0;
+const newLayer = type => type==='ribbon'
+  ? { type, c:'#14f5ee', x:.5, y:.5, angle:-60, bend:0, width:.06, edge:.65, amt:1.1, halo:3, len:0, flip:false, fold:.8, sheen:.2, roll:.45 }
+  : { type, c:'#ff8a48', x:.5, y:.5, angle:0, width:.3, stretch:1, amt:.8 };
+function setMode(m){
+  P.mode = m;
+  if (m==='compose' && !(P.layers && P.layers.length)) { P.layers = [newLayer('blast'), newLayer('ribbon')]; selLayer = 0; }
+  syncMode(); markCustom(); schedule();
+}
+function syncMode(){
+  const c = P.mode==='compose';
+  document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('on', b.dataset.m===(c?'compose':'weave')));
+  $('#composeUI').classList.toggle('hidden', !c);
+  WEAVE_ONLY.forEach(k=>$('#s_'+k).parentElement.classList.toggle('hidden', c));
+  $('#o_rotate').previousElementSibling.previousElementSibling.textContent = c ? 'Rotate layers' : 'Weave rotation';
+  if (c) { selLayer = Math.min(selLayer, P.layers.length-1); drawLayers(); }
+}
+document.querySelectorAll('#modeSeg button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+$('#addRibbon').onclick = () => { if(P.layers.length>=8) return send({type:'notify',text:'Max 8 layers'}); P.layers.push(newLayer('ribbon')); selLayer=P.layers.length-1; drawLayers(); markCustom(); schedule(); };
+$('#addBlast').onclick = () => { if(P.layers.length>=8) return send({type:'notify',text:'Max 8 layers'}); P.layers.push(newLayer('blast')); selLayer=P.layers.length-1; drawLayers(); markCustom(); schedule(); };
+function drawLayers(){
+  const list = $('#layerList'); list.innerHTML='';
+  P.layers.forEach((l,i)=>{
+    const c = document.createElement('div'); c.className='chip'+(i===selLayer?' on':'');
+    c.innerHTML = `<i style="background:${l.c}"></i>${l.type==='ribbon'?'Ribbon':'Blast'} ${i+1}`;
+    c.onclick = ()=>{ selLayer=i; drawLayers(); drawHandles(); };
+    list.appendChild(c);
+  });
+  const ed = $('#layerEdit'), l = P.layers[selLayer]; ed.innerHTML='';
+  if (!l) return;
+  const top = document.createElement('div'); top.className='ledit-top';
+  top.innerHTML = `<input type="color" value="${l.c}"><input type="text" value="${l.c}" spellcheck="false">`+
+    (l.type==='ribbon'?`<button title="Glow on the other side">Flip</button>`:'<span></span>')+`<button title="Delete layer">Delete</button>`;
+  const [ci,hi] = top.querySelectorAll('input'), btns = top.querySelectorAll('button');
+  ci.oninput = ()=>{ l.c=ci.value; hi.value=ci.value; list.children[selLayer].firstChild.style.background=l.c; markCustom(); schedule(); };
+  hi.onchange = ()=>{ if(validHex(hi.value)){ l.c=normHex(hi.value); ci.value=l.c; markCustom(); schedule(); drawLayers(); } };
+  if (l.type==='ribbon') btns[0].onclick = ()=>{ l.flip=!l.flip; markCustom(); schedule(); };
+  btns[btns.length-1].onclick = ()=>{ P.layers.splice(selLayer,1); selLayer=Math.max(0,selLayer-1); drawLayers(); markCustom(); schedule(); };
+  ed.appendChild(top);
+  LAYER_FIELDS[l.type].forEach(([k,label,min,max,step])=>{
+    const row = document.createElement('div'); row.className='row';
+    row.innerHTML = `<label>${label}</label><input type="range" min="${min}" max="${max}" step="${step}" value="${l[k]}"><output>${fmt(l[k],step)}</output>`;
+    const inp=row.querySelector('input'), out=row.querySelector('output');
+    inp.oninput = ()=>{ l[k]=+inp.value; out.textContent=fmt(l[k],step); markCustom(); schedule(); };
+    inp.dataset.k = k;
+    ed.appendChild(row);
+  });
+}
+function drawHandles(){
+  const h = $('#handles'); h.innerHTML='';
+  if (P.mode!=='compose') return;
+  const W = pv.clientWidth, H = pv.clientHeight;
+  P.layers.forEach((l,i)=>{
+    const d = document.createElement('div'); d.className='handle'+(i===selLayer?' sel':'');
+    d.style.left = l.x*W+'px'; d.style.top = l.y*H+'px'; d.style.background = l.c;
+    d.title = (l.type==='ribbon'?'Ribbon ':'Blast ')+(i+1);
+    d.onpointerdown = ev => {
+      ev.preventDefault(); selLayer=i; drawLayers(); d.classList.add('sel');
+      const r = pv.getBoundingClientRect();
+      const move = e => {
+        l.x = Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)); l.y = Math.min(1,Math.max(0,(e.clientY-r.top)/r.height));
+        d.style.left=l.x*W+'px'; d.style.top=l.y*H+'px';
+        ['x','y'].forEach(k=>{ const inp=$('#layerEdit input[data-k="'+k+'"]'); if(inp){ inp.value=l[k]; inp.nextElementSibling.textContent=fmt(l[k],.005); } });
+        markCustom(); schedule();
+      };
+      const up = () => { removeEventListener('pointermove',move); removeEventListener('pointerup',up); drawHandles(); };
+      addEventListener('pointermove',move); addEventListener('pointerup',up);
+    };
+    h.appendChild(d);
+  });
+}
+
+/* ---------------- persistence & messaging ---------------- */
+let saveT = 0;
+function saveSoon(){ clearTimeout(saveT); saveT = setTimeout(()=>send({ type:'save', data:{ P, OUT } }), 400); }
+
+function syncAll(){
+  if (!P.mode) P.mode='weave';
+  syncSliders(); syncMode(); syncStop(); drawGradient();
+  $('#glowA').value=P.glowA; $('#glowB').value=P.glowB;
+  buildSizeOptions(); $('#w').value=OUT.w; $('#h').value=OUT.h; $('#density').value=OUT.density; $('#format').value=OUT.format;
+  drawPresets(); schedule();
+}
+
+/* ---------------- editable layers ---------------- */
+let editing = null;          // {id,name} of the editable weave layer being edited
+let working = false;
+function handleSel(s){
+  sel = s;
+  if (s && s.weave && !working && (!editing || editing.id!==s.id)) {
+    try {
+      const d = JSON.parse(s.weave);
+      editing = { id:s.id, name:s.name };
+      P = Object.assign(presetToParams(PRESETS[0]), d.P);
+      OUT = Object.assign(OUT, d.OUT || {}, { size:'sel', w:s.w, h:s.h });
+      selStop = 0; selLayer = 0; syncAll();
+    } catch(e) { editing = null; }
+  } else if (editing && (!s || s.id!==editing.id) && !working) {
+    editing = null;
+  }
+  if (editing && s && s.id===editing.id) { editing.name = s.name; OUT.w = s.w; OUT.h = s.h; }
+  buildSizeOptions(); if (OUT.size==='sel') applySize();
+  updateEditUI();
+}
+function updateEditUI(){
+  if (window.parent === window) return;
+  $('#editBar').classList.toggle('hidden', !editing);
+  if (editing) $('#editName').textContent = editing.name;
+  $('#insert').textContent = editing ? 'Update layer' : 'Insert in Figma';
+  $('#insSeg').parentElement && $('#insSeg').classList.toggle('hidden', !!editing);
+  $('#insSeg').previousElementSibling.classList.toggle('hidden', !!editing);
+  document.querySelectorAll('#insSeg button').forEach(b=>b.classList.toggle('on', b.dataset.v===(OUT.insert||'editable')));
+}
+document.querySelectorAll('#insSeg button').forEach(b=>b.onclick=()=>{ OUT.insert=b.dataset.v; updateEditUI(); saveSoon(); });
+$('#detach').onclick = () => { editing = null; OUT.size = 'a4'; applySize(); buildSizeOptions(); updateEditUI(); };
+
+onmessage = ev => {
+  const m = ev.data && ev.data.pluginMessage; if (!m) return;
+  if (m.type==='init'){ if (m.saved && m.saved.P){ P = Object.assign(presetToParams(PRESETS[0]), m.saved.P); OUT = Object.assign(OUT, m.saved.OUT); } selStop=0; syncAll(); handleSel(m.sel); }
+  else if (m.type==='selection'){ handleSel(m.sel); }
+  else if (m.type==='ack'){ ackResolve && ackResolve(); }
+  else if (m.type==='error'){ ackErr = m.message; ackResolve && ackResolve(); }
+};
+
+// Outside Figma (the hosted studio) there is nothing to insert into: big preview, download only.
+if (window.parent === window) {
+  document.documentElement.classList.add('web');
+  document.title = 'Weave Gradients — Studio';
+  const pvBox = pv.closest('.preview');
+  document.body.prepend(pvBox);
+  pvBox.insertAdjacentHTML('afterbegin', '<a class="webhome" href="../">← Weave Gradients</a>');
+  ['#insert','#insSeg','#editBar'].forEach(q=>$(q).classList.add('hidden'));
+  $('#insSeg').previousElementSibling.classList.add('hidden');
+  $('#download').textContent = 'Download image';
+}
+new ResizeObserver(()=>schedule(false)).observe(pv.closest('.preview'));
+syncAll();
+</script>
+</body>
+</html>
