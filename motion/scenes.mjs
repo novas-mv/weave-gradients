@@ -23,6 +23,24 @@ export const SCENES = {
       ] },
   },
 
+  // Career, less navy: plum/magenta body instead of indigo, lighter grade. For comparison with `career`.
+  career_warm: {
+    grade: "curves=all='0/0 0.15/0.11 0.3/0.25 0.5/0.45 0.75/0.73 1/0.96'",
+    drift: DRIFT,
+    params: { mode: 'compose', seed: 7, count: 4, flow: .35, depth: .4, sharp: .3, glow: .9, shadow: .3, scale: 1, rotate: 0, angle: 352, aura: .55, grain: 0,
+      glowA: '#14c8c8', glowB: '#f2553a',
+      stops: [['#64105e', 0], ['#6a1a72', .3], ['#4a1c78', .55], ['#1e3a86', .8], ['#0a4878', 1]],
+      layers: [
+        { type: 'blast',  c: '#f2553a', x: .02, y: .02, angle: -20, width: .3,  stretch: 2,   amt: .9 },
+        { type: 'blast',  c: '#c42a70', x: .16, y: .3,  angle: 30,  width: .3,  stretch: 1.4, amt: .85 },
+        { type: 'ribbon', c: '#f05a40', x: .14, y: .16, angle: 32,  bend: -.5, width: 0.091, edge: .35, amt: .75, halo: 3.2, len: .8, flip: false, fold: .45, sheen: .08, roll: .75 },
+        { type: 'blast',  c: '#e0607a', x: .55, y: .1,  angle: 0,   width: .3,  stretch: 1.6, amt: .35 },
+        { type: 'blast',  c: '#0a8ab8', x: .84, y: .5,  angle: 120, width: .32, stretch: .8, amt: .9 },
+        { type: 'ribbon', c: '#18cccc', x: .8,  y: .3,  angle: -108, bend: .45, width: 0.065, edge: .35, amt: .9, halo: 3.2, len: 1, flip: false, fold: .45, sheen: .08, roll: .75 },
+        { type: 'blast',  c: '#2a0e62', x: .12, y: 1.0, angle: 10,  width: .45, stretch: 2.2, amt: .9 },
+      ] },
+  },
+
   // Green leads; cyan/blue on the right hints at Skills, a little amber warmth top-left breaks the green.
   education: {
     drift: DRIFT,

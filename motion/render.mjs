@@ -20,7 +20,7 @@ const opt = k => { const i = args.indexOf('--' + k); return i < 0 ? null : args[
 const scene = SCENES[name];
 if (!scene) { console.error(`Unknown scene "${name}". Known: ${Object.keys(SCENES).join(', ')}`); process.exit(1); }
 
-const grade = args.includes('--raw') ? '' : ',' + GRADE;   // --raw skips the grade
+const grade = args.includes('--raw') ? '' : ',' + (scene.grade || GRADE);   // --raw skips the grade
 const W = +(opt('w') || 1920), H = +(opt('h') || 1080);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const studio = pathToFileURL(path.join(here, '..', 'studio', 'index.html')).href;
