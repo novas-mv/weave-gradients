@@ -4,11 +4,13 @@
 import sys, os, json, subprocess, numpy as np, cv2
 
 BG_ROOT, WORK, D = sys.argv[1:4]
+SKIP_LOOPS = '--skip-loops' in sys.argv
 W, H, FPS, LOOP = 1920, 1080, 25, 250
 SEQ = ['career', 'education', 'skills', 'market', 'summary']
 SCENE = {'career': 'career_warm', 'education': 'education_warm', 'skills': 'skills_warm', 'market': 'market_warm', 'summary': 'finale'}
 NUM = {z: f'{i + 1:02d}' for i, z in enumerate(SEQ)}
-HOLD, MOVE, MOVE_SUM, SUM_HOLD, WIPE_DELAY = 52, 24, 32, 75, 5
+HOLD, MOVE, MOVE_SUM, SUM_HOLD = 52, 24, 32, 75
+WIPE_DELAY, WIPE_DELAY_SUM = 2, 3          # each wipe must finish inside its window, or its last frame jumps to 100%
 WIPE_LEN, WIPE_LEN_SUM = 22, 28
 
 def bezier_ease(x1, y1, x2, y2):
@@ -29,7 +31,9 @@ for i, z in enumerate(SEQ[:-1]):
     segs.append(dict(kind='hold', a=z, b=z, start=f, end=f + HOLD)); f += HOLD
     mv = MOVE_SUM if SEQ[i + 1] == 'summary' else MOVE
     ln = WIPE_LEN_SUM if SEQ[i + 1] == 'summary' else WIPE_LEN
-    segs.append(dict(kind='wipe', a=z, b=SEQ[i + 1], start=f, end=f + mv, wipe=(f + WIPE_DELAY, f + WIPE_DELAY + ln), n=i)); f += mv
+    dl = WIPE_DELAY_SUM if SEQ[i + 1] == 'summary' else WIPE_DELAY
+    assert dl + ln <= mv, 'wipe overruns its window'
+    segs.append(dict(kind='wipe', a=z, b=SEQ[i + 1], start=f, end=f + mv, wipe=(f + dl, f + dl + ln), n=i)); f += mv
 segs.append(dict(kind='hold', a='summary', b='summary', start=f, end=f + SUM_HOLD)); f += SUM_HOLD
 N = f
 
@@ -99,7 +103,7 @@ for s in segs:
 print('full sequence done', flush=True)
 
 # ---------- per-zone loops (same brightness gains, seamless 10 s) ----------
-for z in SEQ:
+for z in ([] if SKIP_LOOPS else SEQ):
     tmp = f'{WORK}/loop_{z}'; os.makedirs(tmp, exist_ok=True)
     for i in range(LOOP): cv2.imwrite(f'{tmp}/{i:04d}.png', dither(plate(z, i)*GAIN[z]))
     ff(['-framerate', str(FPS), '-i', f'{tmp}/%04d.png', *PRORES(3), f'{D}/01-zone-background-loops/{NUM[z]}-{z}-background-loop-10s.mov'])
