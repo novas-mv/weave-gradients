@@ -57,6 +57,7 @@ footer{border-top:1px solid var(--bd);padding:10px 12px 12px;display:grid;gap:8p
 .chip i{width:10px;height:10px;border-radius:50%;display:block}
 .ledit-top{display:grid;grid-template-columns:36px 1fr auto auto;gap:6px;align-items:center;margin-bottom:6px}
 .hidden{display:none!important}
+.ver{font-size:10px}.ver a{color:var(--accent);text-decoration:none}.ver a:hover{text-decoration:underline}
 /* ---- web studio: same panel, opened outside Figma ---- */
 .web body{display:grid;grid-template-columns:minmax(0,1fr) 380px;grid-template-rows:minmax(0,1fr) auto;height:100vh;overflow:hidden}   /* minmax(0,…): the canvas never widens its column */
 .web .preview{grid-column:1;grid-row:1/3;height:100vh;min-width:0;overflow:hidden;border-radius:0;padding:32px;position:relative;background:#0b1020}
@@ -138,6 +139,7 @@ footer{border-top:1px solid var(--bd);padding:10px 12px 12px;display:grid;gap:8p
 <footer>
   <div class="editbar hidden" id="editBar"><span>Editing <b id="editName"></b></span><button id="detach" title="Stop editing this layer — insert a new weave instead">Insert new</button></div>
   <div class="meta"><span id="pxInfo"></span><span id="tileInfo"></span></div>
+  <div class="meta ver"><span id="ver"></span><span id="verNote"></span></div>
   <div class="bar" id="bar"><i></i></div>
   <div class="btns">
     <button class="big" id="download">Download</button>
@@ -146,6 +148,8 @@ footer{border-top:1px solid var(--bd);padding:10px 12px 12px;display:grid;gap:8p
 </footer>
 
 <script>
+const VERSION = '1.2.0';          // set by release.sh — do not edit by hand
+const SITE = 'https://novas-mv.github.io/weave-gradients/';
 const $ = s => document.querySelector(s);
 const send = m => parent.postMessage({ pluginMessage: m }, '*');
 
@@ -784,11 +788,22 @@ if (window.parent === window) {
   document.title = 'Weave Gradients — Studio';
   const pvBox = pv.closest('.preview');
   document.body.prepend(pvBox);
-  pvBox.insertAdjacentHTML('afterbegin', '<a class="webhome" href="../">← Weave Gradients</a>');
+  pvBox.insertAdjacentHTML('afterbegin', '<a class="webhome" href="../">← Weave Gradients · v' + VERSION + '</a>');
   ['#insert','#insSeg','#editBar'].forEach(q=>$(q).classList.add('hidden'));
   $('#insSeg').previousElementSibling.classList.add('hidden');
   $('#download').textContent = 'Download image';
 }
+/* ---------------- version: show it, and say when a newer one is live ---------------- */
+const newer = (a, b) => { const x=a.split('.').map(Number), y=b.split('.').map(Number);
+  for (let i=0;i<3;i++){ if((x[i]||0)!==(y[i]||0)) return (x[i]||0)>(y[i]||0); } return false; };
+$('#ver').textContent = 'v' + VERSION;
+fetch(SITE + 'version.json?t=' + Date.now(), { cache:'no-store' }).then(r=>r.json()).then(v => {
+  if (!v || !v.version || !newer(v.version, VERSION)) return;
+  $('#verNote').innerHTML = window.parent === window
+    ? `v${v.version} is live — <a href="#" onclick="location.reload();return false">refresh</a>`
+    : `<a href="${SITE}#figma" target="_blank" rel="noopener">v${v.version} available ↗</a>`;
+}).catch(()=>{});   // offline or blocked: just show the version
+
 new ResizeObserver(()=>schedule(false)).observe(pv.closest('.preview'));
 syncAll();
 </script>

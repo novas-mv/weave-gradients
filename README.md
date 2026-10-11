@@ -2,18 +2,20 @@
 
 Aurora-style gradient weaves — soft colour blooms and fabric-like folds — at print resolution.
 
+Current version: **v1.2.0** · [changelog](CHANGELOG.md)
+
 **→ [Read this instead](https://novas-mv.github.io/weave-gradients/)** — same instructions, easier to follow, and the studio is one click away.
 
 | | |
 |---|---|
 | **Studio** | <https://novas-mv.github.io/weave-gradients/studio/> — a web page, nothing to install |
-| **Figma plugin** | [Download the ZIP](https://github.com/novas-mv/weave-gradients/archive/refs/heads/main.zip), then see below |
+| **Figma plugin** | [Download the ZIP](https://github.com/novas-mv/weave-gradients/archive/refs/tags/v1.2.0.zip), then see below |
 
 ---
 
 ## Install the Figma plugin
 
-1. [Download the ZIP](https://github.com/novas-mv/weave-gradients/archive/refs/heads/main.zip) and unzip it.
+1. [Download the ZIP](https://github.com/novas-mv/weave-gradients/archive/refs/tags/v1.2.0.zip) and unzip it.
 2. **Move the folder somewhere permanent** — Documents, not Downloads. Figma reads these files every time you run the plugin.
 3. Figma → **Plugins → Development → Import plugin from manifest…**
 4. Choose **`plugin/manifest.json`** inside that folder.
@@ -33,3 +35,5 @@ Use **Download** at 300 dpi (A4–A1) or 150 dpi (A0 and bigger). The PNG carrie
 ## Editing this repo
 
 `plugin/ui.html` is the source of truth. The studio is the same file opened in a browser — after editing it, run `./sync.sh` to copy it to `studio/index.html`.
+
+To release: `./release.sh 1.3.0 "what changed"`. It stamps the version into the plugin, studio, guide page, README and `version.json`, adds a changelog entry, then commits, tags, pushes and creates the GitHub release.

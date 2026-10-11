@@ -10,8 +10,9 @@
   "documentAccess": "dynamic-page",
   "networkAccess": {
     "allowedDomains": [
-      "none"
-    ]
+      "https://novas-mv.github.io"
+    ],
+    "reasoning": "Checks the published version.json to tell you when a newer version of the plugin is out."
   },
   "relaunchButtons": [
     {
