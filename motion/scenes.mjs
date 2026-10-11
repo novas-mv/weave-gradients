@@ -38,6 +38,7 @@ export const SCENES = {
         { type: 'blast',  c: '#0a8ab8', x: .84, y: .5,  angle: 120, width: .32, stretch: .8, amt: .9 },
         { type: 'ribbon', c: '#22d0a6', x: .8,  y: .3,  angle: -108, bend: .45, width: 0.065, edge: .35, amt: .9, halo: 3.2, len: 1, flip: false, fold: .45, sheen: .08, roll: .75 },
         { type: 'blast',  c: '#2a0e62', x: .12, y: 1.0, angle: 10,  width: .45, stretch: 2.2, amt: .9 },
+        { type: 'blast',  c: '#5a4ae8', x: .62, y: .62, angle: 20,  width: .22, stretch: 1.6, amt: .5 },
       ] },
   },
 
@@ -51,11 +52,46 @@ export const SCENES = {
       stops: [['#0c4a4a', 0], ['#0e4e50', .3], ['#174060', .55], ['#2a2a6c', .8], ['#3a1e66', 1]],
       layers: [
         { type: 'blast',  c: '#36d05a', x: 1.0, y: 1.0, angle: 30,  width: .34, stretch: 2,   amt: 1.0 },
-        { type: 'blast',  c: '#c8d040', x: 1.0, y: .92, angle: 20,  width: .12, stretch: 1.6, amt: .45 },
+        { type: 'blast',  c: '#f08a3a', x: .96, y: .02, angle: 20,  width: .24, stretch: 1.6, amt: .75 },
+        { type: 'blast',  c: '#d8c040', x: 1.0, y: .92, angle: 20,  width: .12, stretch: 1.6, amt: .4 },
         { type: 'ribbon', c: '#46d86a', x: .78, y: .82, angle: 150, bend: .45, width: 0.09, edge: .35, amt: .8, halo: 3.2, len: .9, flip: false, fold: .45, sheen: .08, roll: .75 },
         { type: 'blast',  c: '#14a08a', x: .45, y: .55, angle: 0,   width: .3,  stretch: 2,   amt: .45 },
         { type: 'ribbon', c: '#2ab8e8', x: .2,  y: .12, angle: -20, bend: -.4, width: 0.06, edge: .35, amt: .6, halo: 3.2, len: .8, flip: false, fold: .45, sheen: .08, roll: .75 },
         { type: 'blast',  c: '#1a1e5c', x: .1,  y: .45, angle: 0,   width: .35, stretch: 1.6, amt: .7 },
+      ] },
+  },
+
+  // Skills, new composition: one long cyan fold running diagonally across the top, blue-teal body (not navy),
+  // violet hint top-right where the road leads on to Market.
+  skills_warm: {
+    grade: "curves=all='0/0 0.15/0.11 0.3/0.25 0.5/0.45 0.75/0.73 1/0.96'",
+    drift: DRIFT,
+    params: { mode: 'compose', seed: 11, count: 4, flow: .35, depth: .4, sharp: .3, glow: .9, shadow: .3, scale: 1, rotate: 0, angle: 330, aura: .55, grain: 0,
+      glowA: '#3ad0ff', glowB: '#9a3ee0',
+      stops: [['#0a3c80', 0], ['#0c4a92', .3], ['#163c8c', .55], ['#24307e', .8], ['#2c2470', 1]],
+      layers: [
+        { type: 'ribbon', c: '#22c0f0', x: .3,  y: .18, angle: -22, bend: .12, width: 0.09, edge: .35, amt: .85, halo: 3.2, len: 1.3, flip: false, fold: .45, sheen: .08, roll: .75 },
+        { type: 'blast',  c: '#2ad08a', x: .04, y: .02, angle: -20, width: .3,  stretch: 2,   amt: .8 },
+        { type: 'blast',  c: '#8a3ae0', x: .98, y: .05, angle: 20,  width: .26, stretch: 1.4, amt: .75 },
+        { type: 'blast',  c: '#c8607c', x: .0,  y: .62, angle: 30,  width: .14, stretch: 1.4, amt: .35 },
+        { type: 'blast',  c: '#0e2a6a', x: .5,  y: 1.02, angle: 0,  width: .5,  stretch: 2.5, amt: .8 },
+      ] },
+  },
+
+  // Market, new composition: magenta-violet light opening from the top centre, plum body,
+  // amber hint top-right (leads into the warm finale), teal sliver lower-left.
+  market_warm: {
+    grade: "curves=all='0/0 0.15/0.11 0.3/0.25 0.5/0.45 0.75/0.73 1/0.96'",
+    drift: DRIFT,
+    params: { mode: 'compose', seed: 19, count: 4, flow: .35, depth: .4, sharp: .3, glow: .9, shadow: .3, scale: 1, rotate: 0, angle: 270, aura: .55, grain: 0,
+      glowA: '#b04ae8', glowB: '#ff9a4a',
+      stops: [['#4a1490', 0], ['#481a92', .3], ['#3a1a88', .55], ['#2c1678', .8], ['#24126a', 1]],
+      layers: [
+        { type: 'blast',  c: '#c040e0', x: .5,  y: -.06, angle: 0,   width: .34, stretch: 2.4, amt: 1.0 },
+        { type: 'ribbon', c: '#d050f0', x: .5,  y: .2,  angle: 0,   bend: .5, width: 0.08, edge: .35, amt: .6, halo: 3.2, len: 1.1, flip: false, fold: .45, sheen: .08, roll: .75 },
+        { type: 'blast',  c: '#ff9a4a', x: 1.0, y: .0,  angle: 30,  width: .24, stretch: 1.6, amt: .8 },
+        { type: 'blast',  c: '#3a78f0', x: .0,  y: .55, angle: 40,  width: .26, stretch: 1.6, amt: .75 },
+        { type: 'blast',  c: '#1a0e58', x: .5,  y: 1.04, angle: 0,  width: .5,  stretch: 2.5, amt: .9 },
       ] },
   },
 
