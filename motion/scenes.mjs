@@ -36,8 +36,26 @@ export const SCENES = {
         { type: 'ribbon', c: '#f05a40', x: .14, y: .16, angle: 32,  bend: -.5, width: 0.091, edge: .35, amt: .75, halo: 3.2, len: .8, flip: false, fold: .45, sheen: .08, roll: .75 },
         { type: 'blast',  c: '#e0607a', x: .55, y: .1,  angle: 0,   width: .3,  stretch: 1.6, amt: .35 },
         { type: 'blast',  c: '#0a8ab8', x: .84, y: .5,  angle: 120, width: .32, stretch: .8, amt: .9 },
-        { type: 'ribbon', c: '#18cccc', x: .8,  y: .3,  angle: -108, bend: .45, width: 0.065, edge: .35, amt: .9, halo: 3.2, len: 1, flip: false, fold: .45, sheen: .08, roll: .75 },
+        { type: 'ribbon', c: '#22d0a6', x: .8,  y: .3,  angle: -108, bend: .45, width: 0.065, edge: .35, amt: .9, halo: 3.2, len: 1, flip: false, fold: .45, sheen: .08, roll: .75 },
         { type: 'blast',  c: '#2a0e62', x: .12, y: 1.0, angle: 10,  width: .45, stretch: 2.2, amt: .9 },
+      ] },
+  },
+
+  // Education, new composition: light rises from the bottom-right, deep teal-plum body (not navy),
+  // cyan hint top-left for Skills. Paired with career_warm for the road-led transition.
+  education_warm: {
+    grade: "curves=all='0/0 0.15/0.11 0.3/0.25 0.5/0.45 0.75/0.73 1/0.96'",
+    drift: DRIFT,
+    params: { mode: 'compose', seed: 27, count: 4, flow: .35, depth: .4, sharp: .3, glow: .9, shadow: .3, scale: 1, rotate: 0, angle: 200, aura: .55, grain: 0,
+      glowA: '#2ad48a', glowB: '#1aa6e0',
+      stops: [['#0c4a4a', 0], ['#0e4e50', .3], ['#174060', .55], ['#2a2a6c', .8], ['#3a1e66', 1]],
+      layers: [
+        { type: 'blast',  c: '#36d05a', x: 1.0, y: 1.0, angle: 30,  width: .34, stretch: 2,   amt: 1.0 },
+        { type: 'blast',  c: '#c8d040', x: 1.0, y: .92, angle: 20,  width: .12, stretch: 1.6, amt: .45 },
+        { type: 'ribbon', c: '#46d86a', x: .78, y: .82, angle: 150, bend: .45, width: 0.09, edge: .35, amt: .8, halo: 3.2, len: .9, flip: false, fold: .45, sheen: .08, roll: .75 },
+        { type: 'blast',  c: '#14a08a', x: .45, y: .55, angle: 0,   width: .3,  stretch: 2,   amt: .45 },
+        { type: 'ribbon', c: '#2ab8e8', x: .2,  y: .12, angle: -20, bend: -.4, width: 0.06, edge: .35, amt: .6, halo: 3.2, len: .8, flip: false, fold: .45, sheen: .08, roll: .75 },
+        { type: 'blast',  c: '#1a1e5c', x: .1,  y: .45, angle: 0,   width: .35, stretch: 1.6, amt: .7 },
       ] },
   },
 

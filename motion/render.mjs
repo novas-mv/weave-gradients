@@ -2,6 +2,8 @@
 //
 //   node motion/render.mjs <scene> --still out.png [--t 0.25] [--w 1920 --h 1080]
 //   node motion/render.mjs <scene> --video out.mov [--seconds 10 --fps 25] [--w 1920 --h 1080]
+//   node motion/render.mjs <scene> --seq dir --start 0 --count 60 [--fps 25 --period 10]   PNG frames, drift continues across the range
+//   add --overscan 0.3,0.06 to render past the frame edges (fraction of W,H per side) for panning in comp
 //   add --raw to skip the grade in scenes.mjs
 //
 // Scenes live in motion/scenes.mjs. The drift is periodic in t ∈ [0,1), so frame N wraps to frame 0.
@@ -31,7 +33,7 @@ await page.goto(studio);
 
 // Runs inside the studio page: its setParams/render/gl/U globals are in scope.
 await page.evaluate(() => {
-  window.__frame = (params, drift, t, W, H) => {
+  window.__frame = (params, drift, t, W, H, ox = 0, oy = 0) => {
     const TAU = Math.PI * 2, p = JSON.parse(JSON.stringify(params));
     p.stops = p.stops.map(([c, pos]) => ({ c, pos }));
     const d = drift || {};
@@ -48,22 +50,34 @@ await page.evaluate(() => {
     for (let i = 0; i < 32; i++) rnd();
     const sx = rnd() * 100, sy = rnd() * 100, r = d.noise || 0;
     gl.uniform2f(U.uSeedOff, sx + r * Math.cos(TAU * t), sy + r * Math.sin(TAU * t));
-    render(W, H, 0, 0, W, H, W, H, 1);
-    const px = new Uint8Array(W * H * 4);
-    gl.readPixels(0, 0, W, H, gl.RGBA, gl.UNSIGNED_BYTE, px);
+    // overscan: render past the frame edges (ox/oy as a fraction of W/H per side) so the plate can pan in comp
+    const pw = Math.round(W * (1 + 2 * ox)), ph = Math.round(H * (1 + 2 * oy));
+    render(W, H, -ox * W, -oy * H, pw, ph, pw, ph, 1);
+    const px = new Uint8Array(pw * ph * 4);
+    gl.readPixels(0, 0, pw, ph, gl.RGBA, gl.UNSIGNED_BYTE, px);
     let s = ''; for (let i = 0; i < px.length; i += 0x8000) s += String.fromCharCode.apply(null, px.subarray(i, i + 0x8000));
     return btoa(s);
   };
 });
-const frame = async t => Buffer.from(await page.evaluate(([p, d, t, W, H]) => window.__frame(p, d, t, W, H), [scene.params, scene.drift, t, W, H]), 'base64');
+const [OX, OY] = (opt('overscan') || '0,0').split(',').map(Number);   // e.g. --overscan 0.3,0.06
+const PW = Math.round(W * (1 + 2 * OX)), PH = Math.round(H * (1 + 2 * OY));
+const frame = async t => Buffer.from(await page.evaluate(([p, d, t, W, H, ox, oy]) => window.__frame(p, d, t, W, H, ox, oy), [scene.params, scene.drift, t, W, H, OX, OY]), 'base64');
 
-const ff = (outArgs, extraIn = []) => spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', `${W}x${H}`, ...extraIn, '-i', '-', ...outArgs], { stdio: ['pipe', 'inherit', 'inherit'] });
+const ff = (outArgs, extraIn = []) => spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', `${PW}x${PH}`, ...extraIn, '-i', '-', ...outArgs], { stdio: ['pipe', 'inherit', 'inherit'] });
 const done = p => new Promise((ok, no) => p.on('close', c => c ? no(new Error('ffmpeg ' + c)) : ok()));
 
 if (opt('still')) {
   const p = ff(['-vf', 'vflip' + grade, '-frames:v', '1', opt('still')]);
   p.stdin.end(await frame(+(opt('t') || 0)));
   await done(p);
+} else if (opt('seq')) {
+  // Frames start..start+count-1 of a loop `period` seconds long, written as dir/NNNN.png.
+  const fps = +(opt('fps') || 25), period = +(opt('period') || 10), start = +(opt('start') || 0), n = +(opt('count') || 1);
+  const p = ff(['-vf', 'vflip' + grade, '-start_number', String(start), path.join(opt('seq'), '%04d.png')], ['-r', String(fps)]);
+  for (let i = start; i < start + n; i++) {
+    if (!p.stdin.write(await frame((i / (fps * period)) % 1))) await new Promise(r => p.stdin.once('drain', r));
+  }
+  p.stdin.end(); await done(p);
 } else if (opt('video')) {
   const fps = +(opt('fps') || 25), n = Math.round(+(opt('seconds') || 10) * fps), out = opt('video');
   const enc = out.endsWith('.mov')
